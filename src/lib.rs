@@ -1,8 +1,6 @@
-use std::{
-    rc::Rc,
-    sync::{Arc, RwLock},
-};
+use std::{rc::Rc, sync::Arc};
 
+use async_rwlock::RwLock;
 use dioxus::prelude::*;
 use futures::{
     stream::{SplitSink, SplitStream},
@@ -32,7 +30,7 @@ impl DioxusWs {
         let sender = self.sender.clone();
 
         spawn_local(async move {
-            let mut sender = sender.write().unwrap();
+            let mut sender = sender.write().await;
             sender.send(msg).await.unwrap()
         });
     }
@@ -45,7 +43,6 @@ impl DioxusWs {
     pub fn send_json<T: Serialize>(&self, value: &T) {
         let json = serde_json::to_string(value).unwrap();
         let msg = Message::Text(json);
-
         self.send(msg)
     }
 }
@@ -58,7 +55,7 @@ pub fn use_ws_context_provider(cx: &ScopeState, url: &str, reducer: impl Fn(Mess
         let receiver = ws.receiver.clone();
 
         cx.push_future(async move {
-            let mut receiver = receiver.write().unwrap();
+            let mut receiver = receiver.write().await;
             while let Some(msg) = receiver.next().await {
                 if let Ok(msg) = msg {
                     reducer(msg);
@@ -74,8 +71,14 @@ where
 {
     let reducer = move |msg| match msg {
         Message::Text(text) => {
-            let json = serde_json::from_str::<T>(&text).unwrap();
-            reducer(json)
+            let json = serde_json::from_str::<T>(&text);
+
+            match json {
+                Ok(json) => reducer(json),
+
+                // TODO: this will likely be suppressed as usage is expected to be in a web browser
+                Err(e) => eprintln!("Error while deserializing websocket response: {}", e),
+            }
         }
         Message::Bytes(_) => {}
     };
