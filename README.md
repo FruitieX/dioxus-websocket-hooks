@@ -3,9 +3,9 @@
 Dioxus hooks for websocket connections
 
 ```rust
-fn app(cx: Scope) -> Element {
-    use_init_atom_root(&cx);
+use dioxus_websocket_hooks::{use_ws_context, use_ws_context_provider_json};
 
+fn app(cx: Scope) -> Element {
     use_ws_context_provider_json(&cx, "wss://echo.websocket.events", move |msg| {
         // Handle incoming ws message, e.g. store it in shared state
     });
