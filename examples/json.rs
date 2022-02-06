@@ -42,6 +42,7 @@ fn app(cx: Scope) -> Element {
     cx.render(rsx!(ResponseDisplay {}))
 }
 
+#[allow(non_snake_case)]
 fn ResponseDisplay(cx: Scope) -> Element {
     // We can access the latest websocket response from other components:
     let response = use_read(&cx, WS_RESPONSE_ATOM);
@@ -60,18 +61,21 @@ fn ResponseDisplay(cx: Scope) -> Element {
 }
 
 // We can also send websocket messages from other components:
+#[allow(non_snake_case)]
 fn SendA(cx: Scope) -> Element {
     let ws = use_ws_context(&cx);
     let onclick = move |_| ws.send_json(&WsRequest::A);
     cx.render(rsx!(button { onclick: onclick, "A" }))
 }
 
+#[allow(non_snake_case)]
 fn SendB(cx: Scope) -> Element {
     let ws = use_ws_context(&cx);
     let onclick = move |_| ws.send_json(&WsRequest::B);
     cx.render(rsx!(button { onclick: onclick, "B" }))
 }
 
+#[allow(non_snake_case)]
 fn SendC(cx: Scope) -> Element {
     let ws = use_ws_context(&cx);
     let onclick = move |_| ws.send_json(&WsRequest::C);

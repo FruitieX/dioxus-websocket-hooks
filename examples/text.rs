@@ -21,19 +21,20 @@ fn app(cx: Scope) -> Element {
     cx.render(rsx!(ResponseDisplay {}))
 }
 
+#[allow(non_snake_case)]
 fn ResponseDisplay(cx: Scope) -> Element {
     let response = use_read(&cx, WS_RESPONSE_ATOM);
     let ws = use_ws_context(&cx);
 
-    let input = use_state(&cx, String::default);
+    let (input, set_input) = use_state(&cx, String::default);
     let submit = move |_| {
         ws.send_text(input.to_string());
-        input.set(String::default());
+        set_input(String::default());
     };
 
     cx.render(rsx! (
         div { "Server sent: {response}" }
-        input { oninput: move |event| input.set(event.value.clone()), "{input}" }
+        input { oninput: move |event| set_input(event.value.clone()), "{input}" }
         button { onclick: submit, "Submit" }
     ))
 }
