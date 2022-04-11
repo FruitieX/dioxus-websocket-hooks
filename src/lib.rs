@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::spawn_local;
 
+#[derive(Clone)]
 pub struct DioxusWs {
     url: String,
     sender: Arc<RwLock<SplitSink<WebSocket, Message>>>,
@@ -185,6 +186,6 @@ where
 /// opens. You will not be able to send websocket messages from the client
 /// before a message has been received from the server. This is a limitation
 /// in the current reconnection logic.
-pub fn use_ws_context(cx: &ScopeState) -> Rc<DioxusWs> {
+pub fn use_ws_context(cx: &ScopeState) -> DioxusWs {
     cx.consume_context::<DioxusWs>().unwrap()
 }
